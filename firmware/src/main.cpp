@@ -1,20 +1,18 @@
 #include <Arduino.h>
-#include "Brain.h"
+#include "brain.h"
 
 Brain brain;
 
 void setup() {
-
     Serial.begin(115200);
-
-    while(!Serial);
+    delay(1000);
 
     brain.begin();
-
 }
 
 void loop() {
-
     brain.update();
+    brain.printStatus();
 
+    delay(2000);
 }
