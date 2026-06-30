@@ -1,0 +1,20 @@
+#include <Arduino.h>
+#include "Brain.h"
+
+Brain brain;
+
+void setup() {
+
+    Serial.begin(115200);
+
+    while(!Serial);
+
+    brain.begin();
+
+}
+
+void loop() {
+
+    brain.update();
+
+}

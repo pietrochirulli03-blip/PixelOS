@@ -1,0 +1,20 @@
+#include "Brain.h"
+#include <Arduino.h>
+
+void Brain::begin() {
+
+    energy = 100;
+    curiosity = 50;
+    boredom = 0;
+
+    Serial.println("=================================");
+    Serial.println("      PixelBuddy Brain v0.1");
+    Serial.println("=================================");
+    Serial.println("Brain online!");
+    Serial.println();
+
+}
+
+void Brain::update() {
+
+}

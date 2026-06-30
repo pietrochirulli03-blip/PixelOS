@@ -1,0 +1,16 @@
+#ifndef BRAIN_H
+#define BRAIN_H
+
+class Brain {
+
+public:
+    void begin();
+    void update();
+
+private:
+    int energy;
+    int curiosity;
+    int boredom;
+};
+
+#endif
