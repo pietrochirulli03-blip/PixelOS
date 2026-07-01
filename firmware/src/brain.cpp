@@ -1,43 +1,136 @@
 #include "brain.h"
 #include <Arduino.h>
 
-Brain::Brain() {
+Brain::Brain()
+{
     energy = 100;
     curiosity = 50;
     boredom = 0;
+
+    focus = 50;
+    stress = 0;
+    memory = 50;
+
+    happiness = 70;
+    trust = 50;
+    loneliness = 20;
 }
 
-void Brain::begin() {
+void Brain::clampValues(int &v)
+{
+    if (v < 0)
+        v = 0;
+    if (v > 100)
+        v = 100;
+}
+
+void Brain::begin()
+{
     Serial.println("Brain online");
+    randomSeed(micros());
 }
 
-void Brain::update() {
-    energy--;
+void Brain::update()
+{
 
-    curiosity++;
-    if (curiosity > 100) curiosity = 100;
+    energy -= 1;
+    clampValues(energy);
 
-    boredom++;
-    if (boredom > 100) boredom = 100;
+    // 🧪 TEST: cambiamenti casuali
+    curiosity += random(-5, 10);
+    boredom += random(-5, 10);
+    stress += random(-5, 10);
+    happiness += random(-5, 10);
+    loneliness += random(-5, 10);
+    trust += random(-5, 10);
+    focus += random(-5, 10);
+
+    clampValues(energy);
+    clampValues(curiosity);
+    clampValues(boredom);
+    clampValues(stress);
+    clampValues(happiness);
+    clampValues(loneliness);
+    clampValues(trust);
+    clampValues(focus);
+
+    evolveState();
 }
 
-void Brain::printStatus() {
+void Brain::printStatus()
+{
+
     Serial.print("Energy: ");
     Serial.println(energy);
-
     Serial.print("Curiosity: ");
     Serial.println(curiosity);
-
     Serial.print("Boredom: ");
     Serial.println(boredom);
+    Serial.print("Happiness: ");
+    Serial.println(happiness);
+    Serial.print("Stress: ");
+    Serial.println(stress);
+    Serial.print("Loneliness: ");
+    Serial.println(loneliness);
 
-    if (energy < 30) {
-        Serial.println("State: tired 😴");
-    } else if (curiosity > 70) {
-        Serial.println("State: curious 🤖");
-    } else {
-        Serial.println("State: neutral");
+    Serial.print("STATE: ");
+
+    switch (state)
+    {
+    case SLEEPING:
+        Serial.println("sleep 😴");
+        break;
+    case BORED:
+        Serial.println("bored 😐");
+        break;
+    case CURIOUS:
+        Serial.println("curious 🤖");
+        break;
+    case STRESSED:
+        Serial.println("stressed ⚠️");
+        break;
+    case HAPPY:
+        Serial.println("happy 😄");
+        break;
+    case SOCIAL:
+        Serial.println("social 🤝");
+        break;
+    case NEUTRAL:
+        Serial.println("neutral 🤝");
+        break;
     }
 
-    Serial.println("----------------");
+    Serial.println("---upload-------");
+}
+void Brain::evolveState()
+{
+
+    if (energy < 20)
+    {
+        state = SLEEPING;
+    }
+    else if (stress > 70)
+    {
+        state = STRESSED;
+    }
+    else if (loneliness > 60)
+    {
+        state = SOCIAL;
+    }
+    else if (boredom > 60)
+    {
+        state = BORED;
+    }
+    else if (curiosity > 70)
+    {
+        state = CURIOUS;
+    }
+    else if (happiness > 70)
+    {
+        state = HAPPY;
+    }
+    else
+    {
+        state = NEUTRAL;
+    }
 }
