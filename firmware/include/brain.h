@@ -1,62 +1,20 @@
 #pragma once
-
-enum BrainState {
-    SLEEPING,
-    BORED,
-    CURIOUS,
-    STRESSED,
-    HAPPY,
-    SOCIAL,
-    NEUTRAL
-};
-
-enum BrainAction {
-    REST,
-    EXPLORE,
-    OBSERVE,
-    THINK,
-    SEEK_SOCIAL
-};
+#include <Arduino.h>
 
 class Brain {
-
 public:
-
-    Brain();
-
     void begin();
     void update();
-    void printStatus();
 
-    // Getter
-    int getEnergy() const { return energy; }
-    int getCuriosity() const { return curiosity; }
-    int getBoredom() const { return boredom; }
-    int getStress() const { return stress; }
-    int getHappiness() const { return happiness; }
-    int getLoneliness() const { return loneliness; }
-
-    BrainState getState() const { return state; }
-    BrainAction getAction() const { return action; }
+    float getEnergy() { return energy; }
+    float getStress() { return stress; }
+    float getCuriosity() { return curiosity; }
 
 private:
-    int energy = 100;
-    int curiosity = 50;
-    int boredom = 0;
-    int focus = 50;
-    int stress = 0;
-    int memory = 50;
-    int happiness = 70;
-    int trust = 50;
-    int loneliness = 20;
+    float energy = 80;
+    float stress = 10;
+    float curiosity = 50;
 
-    int needRest = 0;
-    int needExplore = 0;
-    int needSocial = 0;
-
-    BrainState state = NEUTRAL;
-    BrainAction action = REST;
-    void evolveState();
-    void chooseAction();
-    void clampValues(int &v);
+    // 👇 QUESTA È LA PARTE MANCANTE
+    unsigned long lastUpdate = 0;
 };

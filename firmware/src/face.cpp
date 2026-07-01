@@ -1,39 +1,68 @@
 #include "Face.h"
 #include <math.h>
+#include <Arduino.h>
 
+// =========================
+// COSTRUTTORE
+// =========================
 Face::Face(Adafruit_ST7789 &display)
     : tft(display) {}
 
+// =========================
+// INIT DISPLAY
+// =========================
 void Face::begin() {
-    tft.init(240, 320);     // 👈 CORRETTO
+    tft.init(240, 320);
     tft.setRotation(1);
     tft.fillScreen(ST77XX_BLACK);
-
 
     Serial.println("Face ready");
 }
 
+// =========================
+// UPDATE MAIN
+// =========================
 void Face::update(Brain &brain) {
     updatePhysics(brain);
     drawFace(brain);
 }
+
+// =========================
+// LOGICA STABILE (FIX)
+// =========================
 void Face::updatePhysics(Brain &b) {
 
-    // blinking naturale (lento + random)
-    float blinkSpeed = map(b.getEnergy(), 0, 100, 2000, 6000);
+    // tempo
+    float t = millis() * 0.002f;
 
-    if (millis() % (int)blinkSpeed < 80) {
-        blink = 0.2;
-    } else {
-        blink += (1.0 - blink) * 0.1;
+    // normalizzazione valori brain
+    float energy = b.getEnergy() / 100.0f;
+    float stress = b.getStress() / 100.0f;
+    float curiosity = b.getCuriosity() / 100.0f;
+
+    // =========================
+    // BLINK STABILE (NO DRIFT)
+    // =========================
+    float blinkTarget = 1.0f;
+
+    // blink lento + naturale
+    if (sin(millis() * 0.002f) > 0.98f) {
+        blinkTarget = 0.25f;
     }
 
-    // pupille vive (curiosità = movimento)
-    float t = millis() * 0.002;
+    // smoothing
+    blink += (blinkTarget - blink) * 0.15f;
 
-    pupilX = sin(t) * (b.getCuriosity() * 0.03);
-    pupilY = cos(t * 0.7) * (b.getStress() * 0.02);
+    // =========================
+    // PUPILLE (STABILI)
+    // =========================
+    pupilX = sin(t) * curiosity * 10.0f;
+    pupilY = cos(t * 0.7f) * stress * 8.0f;
 }
+
+// =========================
+// DISEGNO OCCHI
+// =========================
 void Face::drawFace(Brain &b) {
 
     tft.fillScreen(ST77XX_BLACK);
@@ -42,31 +71,44 @@ void Face::drawFace(Brain &b) {
     int cx2 = 160;
     int cy  = 90;
 
-    float openness = blink * (b.getEnergy() / 100.0);
+    // normalizzazione
+    float energy = b.getEnergy() / 100.0f;
+    float stress = b.getStress() / 100.0f;
 
-    // stress = occhi più stretti
-    openness -= b.getStress() * 0.003;
-    if (openness < 0.2) openness = 0.2;
+    // =========================
+    // OPENNESS STABILE
+    // =========================
+    float openness = blink * energy;
+
+    // stress riduce ma NON distrugge
+    openness *= (1.0f - stress * 0.5f);
+
+    // clamp sicurezza
+    openness = constrain(openness, 0.35f, 1.0f);
 
     int eyeW = 40 * openness;
     int eyeH = 55 * openness;
 
-    // OCCHI SINISTRO
+    // =========================
+    // OCCHI
+    // =========================
     tft.fillRoundRect(cx1, cy, eyeW, eyeH, 10, ST77XX_WHITE);
+    tft.fillRoundRect(cx2, cy, eyeW, eyeH, 10, ST77XX_WHITE);
 
-    // OCCHI DESTRO
-    tft.fillRoundRect(cx2, cy, eyeW, eyeH, 10,ST77XX_WHITE);
+    // =========================
+    // PUPILLE
+    // =========================
+    int px = cx1 + eyeW / 2 + pupilX;
+    int py = cy + eyeH / 2 + pupilY;
 
-    // PUPILLE (vive)
-    int px = cx1 + eyeW/2 + pupilX;
-    int py = cy + eyeH/2 + pupilY;
-    int px2 = cx2 + eyeW/2 + pupilX;
-    int py2 = cy + eyeH/2 + pupilY;
+    int px2 = cx2 + eyeW / 2 + pupilX;
+    int py2 = cy + eyeH / 2 + pupilY;
 
- // PUPILLE
-tft.fillCircle(px, py, 6, ST77XX_BLACK);
-tft.fillCircle(px+2, py-2, 2, ST77XX_WHITE);
+    // nero
+    tft.fillCircle(px, py, 6, ST77XX_BLACK);
+    tft.fillCircle(px2, py2, 6, ST77XX_BLACK);
 
-tft.fillCircle(px2, py2, 6, ST77XX_BLACK);
-tft.fillCircle(px2+2, py2-2, 2, ST77XX_WHITE);
+    // riflesso
+    tft.fillCircle(px + 2, py - 2, 2, ST77XX_WHITE);
+    tft.fillCircle(px2 + 2, py2 - 2, 2, ST77XX_WHITE);
 }

@@ -36,6 +36,10 @@ void setup() {
 void loop() {
     brain.update();
     face.update(brain);
+    Serial.print("E:");
+Serial.print(brain.getEnergy());
+Serial.print(" S:");
+Serial.println(brain.getStress());
 
     delay(40);
 }
