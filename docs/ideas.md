@@ -27,6 +27,7 @@ Loneliness  (0-100)
 Focus       (0-100)
 
 10. ascolta suoni e magari all'inizio è curioso, poi li ricorda, tipo magari mi chiede anche ae sto giocando a gta perché magari ricorda la sigla e robe del genere... perosna nuova curiosa stessa persona magari felicità meno lonliness più trust
+11. se non riceve imput per tot si addormenta... anche sensore della luce
 
 
 
