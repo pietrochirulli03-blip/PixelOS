@@ -32,35 +32,66 @@ void Brain::begin()
 
 void Brain::update()
 {
-
+    // degradazione naturale più morbida (meno “robotico”)
     energy -= 1;
-    clampValues(energy);
+    boredom += 1;
+    loneliness += 1;
 
-    // 🧪 TEST: cambiamenti casuali
-    curiosity += random(-5, 10);
-    boredom += random(-5, 10);
-    stress += random(-5, 10);
-    happiness += random(-5, 10);
-    loneliness += random(-5, 10);
-    trust += random(-5, 10);
-    focus += random(-5, 10);
+    // oscillazione emotiva più umana (non lineare)
+    float emotionNoise = random(-3, 4) * 0.5;
 
+    if (energy < 40) focus -= 1.5;
+    if (focus < 30) stress += 1.2;
+    if (stress > 60) happiness -= 1.0;
+    if (curiosity > 70) boredom -= 1.5;
+    if (happiness > 70) stress -= 1.0;
+
+    curiosity += random(-1, 2);
+    happiness += emotionNoise;
+    focus += random(-1, 2);
+
+    // LIMITI SICURI
     clampValues(energy);
     clampValues(curiosity);
     clampValues(boredom);
     clampValues(stress);
     clampValues(happiness);
-    clampValues(loneliness);
-    clampValues(trust);
     clampValues(focus);
+    clampValues(loneliness);
 
+    // bisogni più “smooth”
+    needRest = (100 - energy) * 1.2;
+    needExplore = curiosity + boredom * 0.6;
+    needSocial = loneliness;
+
+    chooseAction();
     evolveState();
-    if (energy==0)
+
+    // sleep override
+    if (energy <= 0)
     {
         state = SLEEPING;
+        energy = 0;
         return;
     }
-    
+}
+void Brain::chooseAction()
+{
+    if (needRest >= needExplore && needRest >= needSocial)
+    {
+        action = REST;
+    }
+    else if (needExplore >= needSocial)
+    {
+        if (curiosity > 70)
+            action = EXPLORE;
+        else
+            action = OBSERVE;
+    }
+    else
+    {
+        action = SEEK_SOCIAL;
+    }
 }
 
 void Brain::printStatus()
@@ -106,37 +137,31 @@ void Brain::printStatus()
         break;
     }
 
+    
+
     Serial.println("---------------");
 }
 void Brain::evolveState()
 {
+    int scoreSleep = 100 - energy;
+    int scoreStress = stress;
+    int scoreSocial = loneliness;
+    int scoreBored = boredom;
+    int scoreCurious = curiosity;
+    int scoreHappy = happiness;
 
-    if (energy < 20)
-    {
+    if (scoreSleep > 80)
         state = SLEEPING;
-    }
-    else if (stress > 70)
-    {
+    else if (scoreStress > 75)
         state = STRESSED;
-    }
-    else if (loneliness > 60)
-    {
+    else if (scoreSocial > 70)
         state = SOCIAL;
-    }
-    else if (boredom > 60)
-    {
+    else if (scoreBored > 65)
         state = BORED;
-    }
-    else if (curiosity > 70)
-    {
+    else if (scoreCurious > 70)
         state = CURIOUS;
-    }
-    else if (happiness > 70)
-    {
+    else if (scoreHappy > 75)
         state = HAPPY;
-    }
     else
-    {
         state = NEUTRAL;
-    }
 }

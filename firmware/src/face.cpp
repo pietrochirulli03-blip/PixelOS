@@ -1,10 +1,14 @@
 #include "Face.h"
 #include <math.h>
 
+Face::Face(Adafruit_ST7789 &display)
+    : tft(display) {}
+
 void Face::begin() {
-    tft.init();
+    tft.init(240, 320);     // 👈 CORRETTO
     tft.setRotation(1);
-    tft.fillScreen(TFT_BLACK);
+    tft.fillScreen(ST77XX_BLACK);
+
 
     Serial.println("Face ready");
 }
@@ -32,7 +36,7 @@ void Face::updatePhysics(Brain &b) {
 }
 void Face::drawFace(Brain &b) {
 
-    tft.fillScreen(TFT_BLACK);
+    tft.fillScreen(ST77XX_BLACK);
 
     int cx1 = 80;
     int cx2 = 160;
@@ -48,10 +52,10 @@ void Face::drawFace(Brain &b) {
     int eyeH = 55 * openness;
 
     // OCCHI SINISTRO
-    tft.fillRoundRect(cx1, cy, eyeW, eyeH, 10, TFT_WHITE);
+    tft.fillRoundRect(cx1, cy, eyeW, eyeH, 10, ST77XX_WHITE);
 
     // OCCHI DESTRO
-    tft.fillRoundRect(cx2, cy, eyeW, eyeH, 10, TFT_WHITE);
+    tft.fillRoundRect(cx2, cy, eyeW, eyeH, 10,ST77XX_WHITE);
 
     // PUPILLE (vive)
     int px = cx1 + eyeW/2 + pupilX;
@@ -59,9 +63,10 @@ void Face::drawFace(Brain &b) {
     int px2 = cx2 + eyeW/2 + pupilX;
     int py2 = cy + eyeH/2 + pupilY;
 
-    tft.fillCircle(px2, py2, 6, TFT_BLACK);
-    tft.fillCircle(px2+2, py2-2, 2, TFT_WHITE);
+ // PUPILLE
+tft.fillCircle(px, py, 6, ST77XX_BLACK);
+tft.fillCircle(px+2, py-2, 2, ST77XX_WHITE);
 
-    tft.fillCircle(px, py, 6, TFT_BLACK);
-    tft.fillCircle(px+2, py-2, 2, TFT_WHITE);
+tft.fillCircle(px2, py2, 6, ST77XX_BLACK);
+tft.fillCircle(px2+2, py2-2, 2, ST77XX_WHITE);
 }
