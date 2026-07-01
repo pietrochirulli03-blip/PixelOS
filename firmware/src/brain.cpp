@@ -55,6 +55,12 @@ void Brain::update()
     clampValues(focus);
 
     evolveState();
+    if (energy==0)
+    {
+        state = SLEEPING;
+        return;
+    }
+    
 }
 
 void Brain::printStatus()
@@ -100,7 +106,7 @@ void Brain::printStatus()
         break;
     }
 
-    Serial.println("---upload-------");
+    Serial.println("---------------");
 }
 void Brain::evolveState()
 {
